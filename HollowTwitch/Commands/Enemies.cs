@@ -16,7 +16,7 @@ namespace HollowTwitch.Commands
     {
         [HKCommand("spawn")]
         [Summary("Spawns an enemy.\nEnemies: [aspid, buzzer, roller]")]
-        [Cooldown(60, 3)]
+        [Cooldown(10)]
         public IEnumerator SpawnEnemy(string name)
         {
             string[] enemies = { "aspid", "buzzer", "roller" };
@@ -38,7 +38,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("jars")]
         [Summary("Summons 5 collector jars from the ceiling.")]
-        [Cooldown(60)]
+        [Cooldown(10)]
         public IEnumerator Jars()
         {
             const string path = "_GameCameras/CameraParent/tk2dCamera/SceneParticlesController/town_particle_set/Particle System";
@@ -92,7 +92,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("spawnpv")]
         [Summary("Spawns pure vessel with one-fourth the hp.")]
-        [Cooldown(360)]
+        [Cooldown(60)]
         public IEnumerator SpawnPureVessel()
         {
             // stolen from https://github.com/SalehAce1/PathOfPureVessel
@@ -163,7 +163,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("revek")]
         [Summary("Spawns revek. Goes away after 30s or one parry.")]
-        [Cooldown(240)]
+        [Cooldown(35)]
         public IEnumerator Revek()
         {
             GameObject revek = Object.Instantiate
@@ -229,7 +229,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("duplicateboss")]
         [Summary("Duplicates the current boss in the room. Mostly Godhome only.")]
-        [Cooldown(160, 2)]
+        [Cooldown(10, 2)]
         public IEnumerator DuplicateBoss()
         {
             if (BossSceneController.Instance == null || BossSceneController.Instance.bosses == null)
@@ -258,7 +258,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("communism")]
         [Summary("Makes all enemies the median HP enemy in the scene")]
-        [Cooldown(120)]
+        [Cooldown(10)]
         public void Communism()
         {
             HealthManager[] hms = Object.FindObjectsOfType<HealthManager>();
@@ -283,7 +283,7 @@ namespace HollowTwitch.Commands
        
         [HKCommand("zap")]
         [Summary("Uumuu's lightning trail attack.")]
-        [Cooldown(30)]
+        [Cooldown(15)]
         public IEnumerator StartZapping()
         {
             GameObject prefab = ObjectLoader.InstantiableObjects["zap"];

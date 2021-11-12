@@ -12,7 +12,7 @@ namespace HollowTwitch.Commands
     public class Area
     {
         [HKCommand("bees")]
-        [Cooldown(120)]
+        [Cooldown(10)]
         [Summary("Hive knight bees.")]
         public void Bees()
         {
@@ -53,7 +53,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("lasers")]
-        [Cooldown(60)]
+        [Cooldown(10)]
         [Summary("Summons crystal peak lasers.")]
         public void Lasers()
         {
@@ -103,6 +103,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("spikefloor")]
         [Summary("Spawns nkg spikes.")]
+        [Cooldown(10)]
         public IEnumerator SpikeFloor()
         {
             Vector3 hero_pos = HeroController.instance.transform.position;

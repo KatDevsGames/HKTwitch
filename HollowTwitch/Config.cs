@@ -12,7 +12,7 @@ namespace HollowTwitch
     public class Config
     {
         [JsonConverter(typeof(StringEnumConverter))]
-        public ClientType Client = ClientType.Twitch;
+        public ClientType Client = ClientType.CrowdControl;
         
         [FormerlySerializedAs("Token")]
         public string TwitchToken;

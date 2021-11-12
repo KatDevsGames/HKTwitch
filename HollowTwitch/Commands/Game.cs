@@ -41,7 +41,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("heal")]
-        [Cooldown(60)]
+        [Cooldown(10)]
         public void Heal()
         {
             if (Random.Range(1, 3) == 1)
@@ -60,7 +60,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("rng")]
         [Summary("YUP RNG.")]
-        [Cooldown(120)]
+        [Cooldown(25)]
         public IEnumerator RNG()
         {
             static void OnWait(Wait.orig_OnEnter orig, HutongGames.PlayMaker.Actions.Wait self)
@@ -133,7 +133,7 @@ namespace HollowTwitch.Commands
 
 
         [HKCommand("sfxRando")]
-        [Cooldown(180)]
+        [Cooldown(65)]
         [Summary("Randomizes sfx sounds.")]
         public IEnumerator SfxRando()
         {

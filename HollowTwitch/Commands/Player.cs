@@ -53,7 +53,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("ax2uBlind")]
         [Summary("Makes all rooms dark like lanternless rooms for a time.")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator Blind()
         {
             void OnSceneLoad(On.GameManager.orig_EnterHero orig, GameManager self, bool additiveGateSearch)
@@ -74,7 +74,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("nopogo")]
         [Summary("Disables pogo knockback temporarily.")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator PogoKnockback()
         {
             void NoBounce(On.HeroController.orig_Bounce orig, HeroController self) { }
@@ -88,7 +88,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("conveyor")]
         [Summary("Floors or walls will act like conveyors")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator Conveyor()
         {
             bool vert = Random.Range(0, 2) == 0;
@@ -120,7 +120,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("jumplength")]
         [Summary("Gives a random jump length.")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator JumpLength()
         {
             HeroController hc = HeroController.instance;
@@ -135,7 +135,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("lifeblood")]
-        [Cooldown(40)]
+        [Cooldown(10)]
         public IEnumerator Lifeblood()
         {
             int r = Random.Range(1, 10);
@@ -151,7 +151,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("godmode")]
-        [Cooldown(60)]
+        [Cooldown(20)]
         public IEnumerator Godmode()
         {
             static int TakeHealth(int damage) => 0;
@@ -173,7 +173,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("sleep")]
-        [Cooldown(60)]
+        [Cooldown(10)]
         public IEnumerator Sleep()
         {
             const string SLEEP_CLIP = "Wake Up Ground";
@@ -194,7 +194,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("limitSoul")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator LimitSoul()
         {
             yield return PlayerDataUtil.FakeSet(nameof(PlayerData.soulLimited), false, 30);
@@ -202,7 +202,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("jumpspeed")]
         [Summary("Gives a random jump speed.")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator JumpSpeed()
         {
             HeroController hc = HeroController.instance;
@@ -218,7 +218,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("wind")]
         [Summary("Make it a windy day.")]
-        [Cooldown(180)]
+        [Cooldown(35)]
         public IEnumerator Wind()
         {
             float speed = Random.Range(-6f, 6f);
@@ -249,7 +249,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("dashSpeed")]
         [Summary("Change dash speed.")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator DashSpeed()
         {
             HeroController hc = HeroController.instance;
@@ -266,7 +266,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("dashLength")]
         [Summary("Changes dash length.")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator DashLength()
         {
             HeroController hc = HeroController.instance;
@@ -283,7 +283,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("dashVector")]
         [Summary("Changes dash vector. New vector generated when dashing in a new direction.")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator DashVector()
         {
             Vector2? vec = null;
@@ -318,6 +318,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("triplejump")]
         [Summary("Gives you triple jump. Wings is enabled for the duration of this command.")]
+        [Cooldown(35)]
         public IEnumerator TripleJump()
         {
             bool triple_jump = false;
@@ -346,7 +347,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("overflow")]
-        [Cooldown(40)]
+        [Cooldown(10)]
         [Summary("Gain more soul than you're able to carry, allowing you to cast 6 spells with base vessels.")]
         public void OverflowSoul()
         {
@@ -357,7 +358,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("timescale")]
         [Summary("Changes the timescale of the game for the time specified. Limit: [0.01, 2f]")]
-        [Cooldown(60 * 2)]
+        [Cooldown(65)]
         [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
         public IEnumerator ChangeTimescale([EnsureFloat(0.01f, 2f)] float scale)
         {
@@ -374,7 +375,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("gravity")]
         [Summary("Changes the gravity to the specified scale. Scale Limit: [0.2, 1.9]")]
-        [Cooldown(60 * 2)]
+        [Cooldown(35)]
         public IEnumerator ChangeGravity([EnsureFloat(0.2f, 1.90f)] float scale)
         {
             var rigidBody = HeroController.instance.gameObject.GetComponent<Rigidbody2D>();
@@ -391,7 +392,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("invertcontrols")]
         [Summary("Inverts the move direction of the player.")]
-        [Cooldown(60)]
+        [Cooldown(65)]
         public IEnumerator InvertControls()
         {
             void Invert(On.HeroController.orig_Move orig, HeroController self, float dir)
@@ -422,6 +423,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("slippery")]
         [Summary("Makes the floor have no friction at all. Lasts for 60 seconds.")]
+        [Cooldown(65)]
         public IEnumerator Slippery()
         {
             float last_move_dir = 0;
@@ -455,6 +457,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("nailscale")]
         [Summary("Makes the nail huge or tiny. Scale limit: [.3, 5]")]
+        [Cooldown(35)]
         public IEnumerator NailScale([EnsureFloat(.3f, 5f)] float nailScale)
         {
             void ChangeNailScale(On.NailSlash.orig_StartSlash orig, NailSlash self)
@@ -473,7 +476,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("bindings")]
         [Summary("Enables bindings.")]
-        [Cooldown(60 * 5)]
+        [Cooldown(65)]
         public IEnumerator EnableBindings()
         {
             BindingsHelper.AddDetours();
@@ -489,7 +492,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("float")]
-        [Cooldown(180)]
+        [Cooldown(35)]
         [Summary("Gain float for 30s.")]
         public IEnumerator Float()
         {
@@ -517,8 +520,8 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("hwurmpU")]
-        [Summary("I don't even know honestly.")]
-        [Cooldown(60 * 5)]
+        [Summary("Summons a Hwurmp.")]
+        [Cooldown(35)]
         public IEnumerator EnableMaggotPrimeSkin()
         {
             GameObject go = UObject.Instantiate(_maggot, HeroController.instance.transform.position + new Vector3(0, 0, -1f), Quaternion.identity);
@@ -530,7 +533,7 @@ namespace HollowTwitch.Commands
             var renderer = HeroController.instance.GetComponent<MeshRenderer>();
             renderer.enabled = false;
 
-            yield return new WaitForSecondsRealtime(60 * 2);
+            yield return new WaitForSecondsRealtime(30);
 
             UObject.DestroyImmediate(go);
 
@@ -538,7 +541,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("walkspeed")]
-        [Cooldown(180)]
+        [Cooldown(25)]
         [Summary("Gain a random walk speed. Limit: [0.3, 10]")]
         public IEnumerator WalkSpeed([EnsureFloat(0.3f, 10f)] float speed)
         {
@@ -552,7 +555,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("geo")]
-        [Cooldown(400)]
+        [Cooldown(10)]
         [Summary("Explode with geo.")]
         public void Geo()
         {
@@ -577,7 +580,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("respawn")]
-        [Cooldown(120)]
+        [Cooldown(10)]
         [Summary("Hazard respawn")]
         public void HazardRespawn()
         {
@@ -589,7 +592,7 @@ namespace HollowTwitch.Commands
         }
 
         [HKCommand("knockback")]
-        [Cooldown(40)]
+        [Cooldown(10)]
         public void Knockback(string dirStr)
         {
             CollisionSide dir = dirStr switch
@@ -685,7 +688,7 @@ namespace HollowTwitch.Commands
         }
         
         [HKCommand("slaphand")]
-        [Cooldown(120)]
+        [Cooldown(65)]
         [Summary("Heavy blow if it was actually good.")]
         public IEnumerator SlapHand()
         {
@@ -708,7 +711,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("toggle")]
         [Summary("Toggles an ability for 45 seconds. Options: [dash, superdash, claw, wings, nail, tear, dnail]")]
-        [Cooldown(60 * 4)]
+        [Cooldown(50)]
         public IEnumerator ToggleAbility(string ability)
         {
             const float time = 45;
@@ -743,7 +746,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("doubledamage")]
         [Summary("Makes the player take double damage.")]
-        [Cooldown(60)]
+        [Cooldown(35)]
         public IEnumerator DoubleDamage()
         {
             static int InstanceOnTakeDamageHook(ref int hazardtype, int damage) => damage * 2;

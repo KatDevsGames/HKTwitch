@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using HollowTwitch.Clients;
 using HollowTwitch.Entities;
 using HollowTwitch.Entities.Attributes;
 using HollowTwitch.Precondition;
@@ -41,7 +42,11 @@ namespace HollowTwitch
             _parsers.Add(t, parser);
         }
 
+<<<<<<< HEAD
+        public (CrowdControlClient.EffectResult, Command) Execute(string user, string command, bool ignoreChecks = false)
+=======
         public void Execute(string user, string command, ReadOnlyCollection<string> blacklist, bool ignoreChecks = false)
+>>>>>>> c18b5654cd479b13063a75033f1626a2931ea07d
         {
             string[] pieces = command.Split(Seperator);
 
@@ -109,13 +114,15 @@ namespace HollowTwitch
                     }
 
                     _coroutineRunner.StartCoroutine(RunCommand());
-
+                    return (CrowdControlClient.EffectResult.Success, c);
                 }
                 catch (Exception e)
                 {
                     Logger.Log(e.ToString());
                 }
             }
+
+            return (CrowdControlClient.EffectResult.Retry, null);
         }
 
         private bool BuildArguments(IEnumerable<string> args, Command command, out object[] parsed)
@@ -191,11 +198,12 @@ namespace HollowTwitch
             foreach (MethodInfo method in methods)
             {
                 HKCommandAttribute attr = method.GetCustomAttributes(typeof(HKCommandAttribute), false).OfType<HKCommandAttribute>().FirstOrDefault();
+                CooldownAttribute cldwn = method.GetCustomAttributes(typeof(CooldownAttribute), false).OfType<CooldownAttribute>().FirstOrDefault();
 
                 if (attr == null)
                     continue;
 
-                Commands.Add(new Command(attr.Name, method, instance));
+                Commands.Add(new Command(attr.Name, method, instance, cldwn?.Cooldown));
                 
                 Logger.Log($"Added command: {attr.Name}");
             }

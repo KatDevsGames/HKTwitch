@@ -60,22 +60,13 @@ namespace HollowTwitch
 
             ConfigureCooldowns();
 
-            if (Config.TwitchToken is null)
+            /*if (Config.TwitchToken is null)
             {
                 Logger.Log("Token not found, relaunch the game with the fields in settings populated.");
                 return;
-            }
+            }*/
 
-            _client = Config.Client switch 
-            {
-                ClientType.Twitch => new TwitchClient(Config),
-                
-                ClientType.Bilibili => new BiliBiliClient(Config),
-                
-                ClientType.Local => new LocalClient(Config),
-                
-                _ => throw new InvalidOperationException($"Enum member {Config.Client} does not exist!") 
-            };
+            _client = new CrowdControlClient(Config);
 
             _client.ChatMessageReceived += OnMessageReceived;
 
@@ -127,27 +118,32 @@ namespace HollowTwitch
             _currentThread.Abort();
         }
 
-        private void OnMessageReceived(string user, string message)
+        private (CrowdControlClient.EffectResult, Command) OnMessageReceived(string user, string message)
         {
             Log($"Twitch chat: [{user}: {message}]");
 
             string trimmed = message.Trim();
             int index = trimmed.IndexOf(Config.Prefix);
 
-            if (index != 0) return;
+            if (index != 0) return (CrowdControlClient.EffectResult.Failure, null);
 
             string command = trimmed.Substring(Config.Prefix.Length).Trim();
 
-            bool admin = Config.AdminUsers.Contains(user, StringComparer.OrdinalIgnoreCase)
-                || user.ToLower() == "5fiftysix6"
-                || user.ToLower() == "sid0003";
+            bool admin = Config.AdminUsers.Contains(user, StringComparer.OrdinalIgnoreCase);
 
             bool banned = Config.BannedUsers.Contains(user, StringComparer.OrdinalIgnoreCase);
 
+<<<<<<< HEAD
+            if (!admin && (banned || blacklisted))
+                return (CrowdControlClient.EffectResult.Failure, null);
+
+            return Processor.Execute(user, command, admin);
+=======
             if (!admin && banned)
                 return;
 
             Processor.Execute(user, command, Config.BlacklistedCommands.AsReadOnly(), admin);
+>>>>>>> c18b5654cd479b13063a75033f1626a2931ea07d
         }
 
         private void GenerateHelpInfo()

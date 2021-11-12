@@ -37,10 +37,10 @@ namespace HollowTwitch.Commands
 
         [HKCommand("cameffect")]
         [Summary("Applies various effects to the camera.\nEffects: Invert, Flip, Nausea, Backwards, Mirror, Pixelate, and Zoom.")]
-        [Cooldown(30, 4)]
+        [Cooldown(35)]
         public IEnumerator AddEffect(string effect)
         {
-            const float time = 60f;
+            const float time = 30f;
 
             CameraEffects camEffect;
 
@@ -68,7 +68,7 @@ namespace HollowTwitch.Commands
                     tk2dCam.ZoomFactor = 5f;
                     _activeEffects |= camEffect;
 
-                    yield return new WaitForSecondsRealtime(time / 6);
+                    yield return new WaitForSecondsRealtime(time);
 
                     tk2dCam.ZoomFactor = 1f;
                     _activeEffects &= ~camEffect;
@@ -133,7 +133,7 @@ namespace HollowTwitch.Commands
                     _activeEffects |= CameraEffects.Mirror;
 
                     // Much shorter than the other effects due to it being a lot harder to play around
-                    yield return new WaitForSecondsRealtime(time / 4);
+                    yield return new WaitForSecondsRealtime(time);
 
                     SetPosition.DoSetPosition -= PreventCameraReset;
 
