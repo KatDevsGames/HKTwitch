@@ -129,21 +129,7 @@ namespace HollowTwitch
 
             string command = trimmed.Substring(Config.Prefix.Length).Trim();
 
-            bool admin = Config.AdminUsers.Contains(user, StringComparer.OrdinalIgnoreCase);
-
-            bool banned = Config.BannedUsers.Contains(user, StringComparer.OrdinalIgnoreCase);
-
-<<<<<<< HEAD
-            if (!admin && (banned || blacklisted))
-                return (CrowdControlClient.EffectResult.Failure, null);
-
-            return Processor.Execute(user, command, admin);
-=======
-            if (!admin && banned)
-                return;
-
-            Processor.Execute(user, command, Config.BlacklistedCommands.AsReadOnly(), admin);
->>>>>>> c18b5654cd479b13063a75033f1626a2931ea07d
+            return Processor.Execute(user, command, false);
         }
 
         private void GenerateHelpInfo()

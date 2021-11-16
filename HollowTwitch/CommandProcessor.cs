@@ -42,11 +42,7 @@ namespace HollowTwitch
             _parsers.Add(t, parser);
         }
 
-<<<<<<< HEAD
         public (CrowdControlClient.EffectResult, Command) Execute(string user, string command, bool ignoreChecks = false)
-=======
-        public void Execute(string user, string command, ReadOnlyCollection<string> blacklist, bool ignoreChecks = false)
->>>>>>> c18b5654cd479b13063a75033f1626a2931ea07d
         {
             string[] pieces = command.Split(Seperator);
 
