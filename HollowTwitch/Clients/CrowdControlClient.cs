@@ -33,8 +33,10 @@ namespace HollowTwitch.Clients
 
         public void Dispose()
         {
-            stream.Dispose();
-            _client.Close();
+            try { stream.Dispose(); }
+            catch {/**/}
+            try { _client.Close(); }
+            catch {/**/}
         }
 
         public void StartReceive()

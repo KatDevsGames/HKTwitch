@@ -52,7 +52,7 @@ namespace HollowTwitch
             
             foreach (Command c in found)
             {
-                bool allGood = !blacklist.Contains(c.Name, StringComparer.OrdinalIgnoreCase);
+                bool allGood = true;
 
                 foreach (PreconditionAttribute p in c.Preconditions)
                 {
