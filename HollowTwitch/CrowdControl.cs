@@ -17,7 +17,7 @@ using Camera = HollowTwitch.Commands.Camera;
 namespace HollowTwitch
 {
     [UsedImplicitly]
-    public class TwitchMod : Mod, ITogglableMod, IGlobalSettings<Config>
+    public class CrowdControl : Mod, ITogglableMod, IGlobalSettings<Config>
     {
         private IClient _client;
         
@@ -27,7 +27,7 @@ namespace HollowTwitch
 
         internal CommandProcessor Processor { get; private set; }
 
-        public static TwitchMod Instance;
+        public static CrowdControl Instance;
         
         public void OnLoadGlobal(Config s) => Config = s;
 
@@ -44,6 +44,8 @@ namespace HollowTwitch
 
             ReceiveCommands();
         }
+
+        public override string GetVersion() => "1.0.0";
 
         public override List<(string, string)> GetPreloadNames() => ObjectLoader.ObjectList.Values.ToList();
 

@@ -17,7 +17,7 @@ namespace HollowTwitch.Commands
         {
             Logger.Log($"Requested blacklist of command {command}");
 
-            List<string> blacklist = TwitchMod.Instance.Config.BlacklistedCommands;
+            List<string> blacklist = CrowdControl.Instance.Config.BlacklistedCommands;
 
             if (!CommandExists(command))
                 return;
@@ -36,7 +36,7 @@ namespace HollowTwitch.Commands
         [Summary("Re-enable a command's usage after having blacklisted it.")]
         public void AllowCommand(string command)
         {
-            List<string> blacklist = TwitchMod.Instance.Config.BlacklistedCommands;
+            List<string> blacklist = CrowdControl.Instance.Config.BlacklistedCommands;
 
             if (!CommandExists(command))
                 return;
@@ -58,7 +58,7 @@ namespace HollowTwitch.Commands
         {
             Logger.Log($"Banning user {user}.");
 
-            List<string> users = TwitchMod.Instance.Config.BannedUsers;
+            List<string> users = CrowdControl.Instance.Config.BannedUsers;
 
             if (!users.Contains(user))
                 users.Add(user);
@@ -71,7 +71,7 @@ namespace HollowTwitch.Commands
         {
             Logger.Log($"Unbanning user {user}.");
 
-            List<string> users = TwitchMod.Instance.Config.BannedUsers;
+            List<string> users = CrowdControl.Instance.Config.BannedUsers;
 
             if (!users.Contains(user))
             {
@@ -105,7 +105,7 @@ namespace HollowTwitch.Commands
 
         private static bool CommandExists(string command)
         {
-            return TwitchMod.Instance.Processor.Commands.Select(x => x.Name).Contains(command, StringComparer.OrdinalIgnoreCase);
+            return CrowdControl.Instance.Processor.Commands.Select(x => x.Name).Contains(command, StringComparer.OrdinalIgnoreCase);
         }
     }
 }

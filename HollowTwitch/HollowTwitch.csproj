@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <RootNamespace>HollowTwitch</RootNamespace>
-        <AssemblyName>HollowTwitch</AssemblyName>
+        <AssemblyName>CrowdControl</AssemblyName>
         <TargetFramework>net472</TargetFramework>
         <AssemblyTitle>HollowTwitch</AssemblyTitle>
         <Product>HollowTwitch</Product>
