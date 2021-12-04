@@ -107,6 +107,11 @@ namespace HollowTwitch
                         {
                             c.MethodInfo.Invoke(c.ClassInstance, parsed);
                         }
+
+                        foreach (PreconditionAttribute precond in c.Preconditions)
+                        {
+                            precond.Reset();
+                        }
                     }
 
                     _coroutineRunner.StartCoroutine(RunCommand());

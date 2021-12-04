@@ -247,9 +247,16 @@ namespace HollowTwitch.Commands
             HeroController.instance.conveyorSpeed = prev_s;
         }
 
+        public class HasDashConditionAttribute : PreconditionAttribute
+        {
+            public override bool Check(string user) => PlayerData.instance.hasDash;
+        }
+
+        [HasDashCondition]
         [HKCommand("dashSpeed")]
         [Summary("Change dash speed.")]
         [Cooldown(35)]
+        [Mutex("dash")]
         public IEnumerator DashSpeed()
         {
             HeroController hc = HeroController.instance;
@@ -264,9 +271,11 @@ namespace HollowTwitch.Commands
             hc.DASH_SPEED = orig_dash;
         }
 
+        [HasDashCondition]
         [HKCommand("dashLength")]
         [Summary("Changes dash length.")]
         [Cooldown(35)]
+        [Mutex("dash")]
         public IEnumerator DashLength()
         {
             HeroController hc = HeroController.instance;
@@ -281,9 +290,11 @@ namespace HollowTwitch.Commands
             hc.DASH_TIME = orig_dash;
         }
 
+        [HasDashCondition]
         [HKCommand("dashVector")]
         [Summary("Changes dash vector. New vector generated when dashing in a new direction.")]
         [Cooldown(35)]
+        [Mutex("dash")]
         public IEnumerator DashVector()
         {
             Vector2? vec = null;
@@ -709,8 +720,15 @@ namespace HollowTwitch.Commands
             ModHooks.SlashHitHook -= SlashHit;
         }
 
+        [HKCommand("toggleDash")]
+        [Summary("Toggles dash for 45 seconds.")]
+        [Cooldown(50)]
+        [Mutex("dash")]
+        public IEnumerator ToggleDash() => ToggleAbility("dash");
+
+        //don't use dash here, we want to mutex on the dash for that one
         [HKCommand("toggle")]
-        [Summary("Toggles an ability for 45 seconds. Options: [dash, superdash, claw, wings, nail, tear, dnail]")]
+        [Summary("Toggles an ability for 45 seconds. Options: [superdash, claw, wings, nail, tear, dnail]")]
         [Cooldown(50)]
         public IEnumerator ToggleAbility(string ability)
         {

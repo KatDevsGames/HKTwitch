@@ -8,5 +8,7 @@ namespace HollowTwitch.Entities.Attributes
         public abstract bool Check(string user);
 
         public virtual void Use() {}
+
+        public virtual void Reset() {}
     }
 }
