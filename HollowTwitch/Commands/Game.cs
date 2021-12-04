@@ -40,6 +40,12 @@ namespace HollowTwitch.Commands
             ModHooks.LanguageGetHook -= OnLangGet;
         }
 
+        public class NotFullHealthConditionAttribute : PreconditionAttribute
+        {
+            public override bool Check(string user) => PlayerData.instance.health < PlayerData.instance.maxHealth;
+        }
+
+        [NotFullHealthCondition]
         [HKCommand("heal")]
         [Cooldown(10)]
         public void Heal()
