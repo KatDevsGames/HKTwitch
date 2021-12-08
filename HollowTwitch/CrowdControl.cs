@@ -41,7 +41,7 @@ namespace HollowTwitch
             ObjectLoader.LoadAssets();
 
             ModHooks.ApplicationQuitHook += OnQuit;
-
+            //UnityEngine.SceneManagement.SceneManager.sceneLoaded += SceneManager_sceneLoaded;
             ReceiveCommands();
         }
 
@@ -113,6 +113,9 @@ namespace HollowTwitch
                 cd.Cooldown = TimeSpan.FromSeconds(time);
             }
         }
+
+        private void SceneManager_sceneLoaded(UnityEngine.SceneManagement.Scene arg0, UnityEngine.SceneManagement.LoadSceneMode arg1)
+            => Log("Scene changed: " + arg0.name);
 
         private void OnQuit()
         {

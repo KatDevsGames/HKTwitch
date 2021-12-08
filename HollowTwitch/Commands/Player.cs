@@ -53,7 +53,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("ax2uBlind")]
         [Summary("Makes all rooms dark like lanternless rooms for a time.")]
-        [Cooldown(35)]
+        [Cooldown(20)]
         public IEnumerator Blind()
         {
             void OnSceneLoad(On.GameManager.orig_EnterHero orig, GameManager self, bool additiveGateSearch)
@@ -66,7 +66,7 @@ namespace HollowTwitch.Commands
             DarknessHelper.Darken();
             On.GameManager.EnterHero += OnSceneLoad;
 
-            yield return new WaitForSecondsRealtime(30);
+            yield return new WaitForSecondsRealtime(15);
 
             On.GameManager.EnterHero -= OnSceneLoad;
             DarknessHelper.Lighten();
@@ -92,23 +92,55 @@ namespace HollowTwitch.Commands
         public IEnumerator Conveyor()
         {
             bool vert = Random.Range(0, 2) == 0;
-
             float speed = Random.Range(-30f, 30f);
+            bool running;
 
             HeroController hc = HeroController.instance;
 
-            if (vert)
+            string BeforeSceneLoad(string arg)
             {
-                hc.cState.onConveyorV = true;
-                hc.GetComponent<ConveyorMovementHero>().StartConveyorMove(0f, speed);
-            }
-            else
-            {
-                hc.cState.onConveyor = true;
-                hc.SetConveyorSpeed(speed);
+                running = false;
+                if (vert)
+                    hc.cState.onConveyorV = false;
+                else
+                    hc.cState.onConveyor = false;
+
+                hc.GetComponent<ConveyorMovementHero>().StopConveyorMove();
+
+                //try { ModHooks.BeforeSceneLoadHook -= BeforeSceneLoad; } catch {/**/}
+                return arg;
             }
 
-            yield return new WaitForSecondsRealtime(30);
+            ModHooks.BeforeSceneLoadHook += BeforeSceneLoad;
+
+            void runConveyor()
+            {
+                if (vert)
+                {
+                    hc.cState.onConveyorV = true;
+                    hc.GetComponent<ConveyorMovementHero>().StartConveyorMove(0f, speed);
+                }
+                else
+                {
+                    hc.cState.onConveyor = true;
+                    hc.SetConveyorSpeed(speed);
+                }
+
+                running = true;
+            }
+            runConveyor();
+
+            for (float elapsed = 0; elapsed < 30f;)
+            {
+                if (running)
+                    elapsed += Time.deltaTime;
+                else if (!(HeroController.instance.cState.isPaused
+                           || HeroController.instance.cState.dead
+                           || HeroController.instance.cState.transitioning))
+                    runConveyor();
+                yield return null;
+            }
+            //yield return new WaitForSecondsRealtime(30);
 
             if (vert)
                 hc.cState.onConveyorV = false;
@@ -116,6 +148,7 @@ namespace HollowTwitch.Commands
                 hc.cState.onConveyor = false;
 
             hc.GetComponent<ConveyorMovementHero>().StopConveyorMove();
+            try { ModHooks.BeforeSceneLoadHook -= BeforeSceneLoad; } catch {/**/}
         }
 
         [HKCommand("jumplength")]
@@ -222,26 +255,48 @@ namespace HollowTwitch.Commands
         public IEnumerator Wind()
         {
             float speed = Random.Range(-6f, 6f);
-
             float prev_s = HeroController.instance.conveyorSpeed;
-            
-            HeroController.instance.cState.inConveyorZone = true;
-            HeroController.instance.conveyorSpeed = speed;
-            
+            bool running;
+
+            void runWind()
+            {
+                HeroController.instance.cState.inConveyorZone = true;
+                HeroController.instance.conveyorSpeed = speed;
+                running = true;
+            }
+            runWind();
+
             void BeforePlayerDead()
             {
                 HeroController.instance.cState.inConveyorZone = false;
                 HeroController.instance.conveyorSpeed = prev_s;
-                
-                ModHooks.BeforePlayerDeadHook -= BeforePlayerDead;
+                running = false;
+            }
+
+            string BeforeSceneLoad(string arg)
+            {
+                BeforePlayerDead();
+                return arg;
             }
 
             // Prevent wind from pushing you OOB on respawn.
             ModHooks.BeforePlayerDeadHook += BeforePlayerDead;
+            ModHooks.BeforeSceneLoadHook += BeforeSceneLoad;
 
-            yield return new WaitForSecondsRealtime(30);
-            
-            ModHooks.BeforePlayerDeadHook -= BeforePlayerDead;
+            for (float elapsed = 0; elapsed < 30f; )
+            {
+                if (running)
+                    elapsed += Time.deltaTime;
+                else if (!(HeroController.instance.cState.isPaused
+                           || HeroController.instance.cState.dead
+                           || HeroController.instance.cState.transitioning))
+                    runWind();
+                yield return null;
+            }
+            //yield return new WaitForSecondsRealtime(30);
+
+            try { ModHooks.BeforePlayerDeadHook -= BeforePlayerDead; } catch {/**/}
+            try { ModHooks.BeforeSceneLoadHook -= BeforeSceneLoad; } catch {/**/}
 
             HeroController.instance.cState.inConveyorZone = false;
             HeroController.instance.conveyorSpeed = prev_s;
@@ -487,7 +542,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("bindings")]
         [Summary("Enables bindings.")]
-        [Cooldown(65)]
+        [Cooldown(35)]
         public IEnumerator EnableBindings()
         {
             BindingsHelper.AddDetours();
@@ -497,13 +552,13 @@ namespace HollowTwitch.Commands
 
             BindingsHelper.ShowIcons();
 
-            yield return new WaitForSecondsRealtime(60);
+            yield return new WaitForSecondsRealtime(30);
 
             BindingsHelper.Unload();
         }
 
         [HKCommand("float")]
-        [Cooldown(35)]
+        [Cooldown(15)]
         [Summary("Gain float for 30s.")]
         public IEnumerator Float()
         {
@@ -513,7 +568,7 @@ namespace HollowTwitch.Commands
 
             On.HeroController.AffectedByGravity += NoOp;
 
-            yield return new WaitForSeconds(30);
+            yield return new WaitForSeconds(10);
             
             On.HeroController.AffectedByGravity -= NoOp;
             

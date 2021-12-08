@@ -10,6 +10,7 @@ using HollowTwitch.Entities;
 using HollowTwitch.Entities.Attributes;
 using HollowTwitch.Precondition;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UObject = UnityEngine.Object;
 
 namespace HollowTwitch
@@ -25,6 +26,8 @@ namespace HollowTwitch
         
         private readonly MonoBehaviour _coroutineRunner;
 
+        private string _currentScene = string.Empty;
+
         public CommandProcessor()
         {
             Commands = new List<Command>();
@@ -35,15 +38,37 @@ namespace HollowTwitch
             UObject.DontDestroyOnLoad(go);
 
             _coroutineRunner = go.AddComponent<NonBouncer>();
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += OnSceneLoaded;
         }
+
+        private void OnSceneLoaded(Scene arg0, LoadSceneMode arg1) => _currentScene = arg0.name;
 
         public void AddTypeParser<T>(T parser, Type t) where T : IArgumentParser
         {
             _parsers.Add(t, parser);
         }
 
+        //this could probably go somewhere better
+        private static readonly HashSet<string> ExcludedAreas = new HashSet<string>(new[]
+        {
+            "Quit_To_Menu",
+            "Opening_Sequence",
+            "Menu_Title",
+            "Knight_Pickup",
+            "Room_shop",
+            "Cinematic_Stag_travel",
+            "Room_Charm_Shop",
+            "Room_Mender_House",
+            "Room_nailsmith",
+            "End_Credits",
+            "Room_ruinhouse",
+            "Room_mapper"
+        });
+
         public (CrowdControlClient.EffectResult, Command) Execute(string user, string command, bool ignoreChecks = false)
         {
+            if (ExcludedAreas.Contains(_currentScene)) return (CrowdControlClient.EffectResult.Retry, null);
+
             string[] pieces = command.Split(Seperator);
 
             IOrderedEnumerable<Command> found = Commands
@@ -78,6 +103,11 @@ namespace HollowTwitch
                 IEnumerable<string> args = pieces.Skip(1);
 
                 if (!BuildArguments(args, c, out object[] parsed))
+                    continue;
+
+                if (HeroController.instance.cState.isPaused
+                    || HeroController.instance.cState.dead
+                    || HeroController.instance.cState.transitioning)
                     continue;
                 
                 foreach (PreconditionAttribute precond in c.Preconditions)

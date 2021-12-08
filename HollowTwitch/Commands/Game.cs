@@ -50,18 +50,18 @@ namespace HollowTwitch.Commands
         [Cooldown(10)]
         public void Heal()
         {
-            if (Random.Range(1, 3) == 1)
+            //if (Random.Range(1, 3) == 1)
             {
                 HeroController.instance.MaxHealth();
                 
                 return;
             }
 
-            foreach (HealthManager hm in UObject.FindObjectsOfType<HealthManager>())
+            /*foreach (HealthManager hm in UObject.FindObjectsOfType<HealthManager>())
             {
                 hm.hp *= 3;
                 hm.hp /= 2;
-            }
+            }*/
         }
 
         [HKCommand("rng")]
