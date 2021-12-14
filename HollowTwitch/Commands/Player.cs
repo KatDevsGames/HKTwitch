@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using GlobalEnums;
@@ -10,6 +11,7 @@ using HollowTwitch.Precondition;
 using HollowTwitch.Utils;
 using HutongGames.PlayMaker;
 using Modding;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
@@ -220,6 +222,15 @@ namespace HollowTwitch.Commands
             yield return new WaitForSecondsRealtime(30);
 
             hc.JUMP_SPEED = prev_speed;
+        }
+
+        [HKCommand("printstate")]
+        public IEnumerator PrintState()
+        {
+            string json = JsonConvert.SerializeObject(HeroController.instance.cState);
+            string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            File.WriteAllText(desktop + "\\HKState.json", json);
+            yield return null;
         }
 
         public IEnumerator BoundaryLimit(Action set, Action unset, float duration)
