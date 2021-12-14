@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using CrowdControl;
 using HollowTwitch.Clients;
 using HollowTwitch.Entities;
 using HollowTwitch.Entities.Attributes;
@@ -65,9 +66,9 @@ namespace HollowTwitch
             "Room_mapper"
         });
 
-        public (CrowdControlClient.EffectResult, Command) Execute(string user, string command, bool ignoreChecks = false)
+        public (SimpleTCPClient.EffectResult, Command) Execute(string user, string command, bool ignoreChecks = false)
         {
-            if (ExcludedAreas.Contains(_currentScene)) return (CrowdControlClient.EffectResult.Retry, null);
+            if (ExcludedAreas.Contains(_currentScene)) return (SimpleTCPClient.EffectResult.Retry, null);
 
             string[] pieces = command.Split(Seperator);
 
@@ -145,7 +146,7 @@ namespace HollowTwitch
                     }
 
                     _coroutineRunner.StartCoroutine(RunCommand());
-                    return (CrowdControlClient.EffectResult.Success, c);
+                    return (SimpleTCPClient.EffectResult.Success, c);
                 }
                 catch (Exception e)
                 {
@@ -153,7 +154,7 @@ namespace HollowTwitch
                 }
             }
 
-            return (CrowdControlClient.EffectResult.Retry, null);
+            return (SimpleTCPClient.EffectResult.Retry, null);
         }
 
         private bool BuildArguments(IEnumerable<string> args, Command command, out object[] parsed)

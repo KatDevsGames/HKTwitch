@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using CrowdControl;
 using HollowTwitch.Clients;
 using HollowTwitch.Commands;
 using HollowTwitch.Entities;
@@ -123,14 +124,14 @@ namespace HollowTwitch
             _currentThread.Abort();
         }
 
-        private (CrowdControlClient.EffectResult, Command) OnMessageReceived(string user, string message)
+        private (SimpleTCPClient.EffectResult, Command) OnMessageReceived(string user, string message)
         {
             Log($"Twitch chat: [{user}: {message}]");
 
             string trimmed = message.Trim();
             int index = trimmed.IndexOf(Config.Prefix);
 
-            if (index != 0) return (CrowdControlClient.EffectResult.Failure, null);
+            if (index != 0) return (SimpleTCPClient.EffectResult.Failure, null);
 
             string command = trimmed.Substring(Config.Prefix.Length).Trim();
 
