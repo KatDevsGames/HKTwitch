@@ -572,7 +572,7 @@ namespace HollowTwitch.Commands
 
         [HKCommand("float")]
         [Cooldown(15)]
-        [Summary("Gain float for 30s.")]
+        [Summary("Gain float for 15s.")]
         [Mutex("BoundaryLimit")]
         public IEnumerator Float()
         {
@@ -586,7 +586,7 @@ namespace HollowTwitch.Commands
             {
                 On.HeroController.AffectedByGravity -= NoOp;
                 HeroController.instance.AffectedByGravity(true);
-            }, 30f);
+            }, 10f);
 
             while (i.MoveNext()) yield return i.Current;
         }
