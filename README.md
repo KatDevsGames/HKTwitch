@@ -3,7 +3,7 @@
 If this is your first time using mods with Hollow Knight, **we recommend using the 1 Click Setup, found in the Crowd Control Desktop Client!** Head to https://crowdcontrol.live/ for more info. 
 
 # Manual Setup
-We require the following packages: https://github.com/WarpWorld/HKTwitch - https://github.com/hk-modding/api - https://github.com/fifty-six/HollowKnight.Vasi
+We require the following packages: https://github.com/hk-modding/api - https://github.com/fifty-six/HollowKnight.Vasi
 * The ``api`` and  ``HollowKnight.Vasi`` should be unzipped into your Steam path to ``Hollow Knight\hollow_knight_Data\Managed\``
    * You can get to your game path by right clicking on the game in Steam > Manage > Brows local files.
 * The ``HKTwitch`` mod should be extracted to ``Hollow Knight\hollow_knight_Data\Managed\Mods\``. You may need to make the ``Mods`` directory if it does not exist. 
