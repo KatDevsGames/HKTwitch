@@ -20,8 +20,8 @@ namespace HollowTwitch.Commands
         public Camera()
         {
             On.tk2dCamera.UpdateCameraMatrix += OnUpdateCameraMatrix;
-            
-            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (s1, s2) =>
+
+            UnityEngine.SceneManagement.SceneManager.activeSceneChanged += (_, s2) =>
             {
                 if (s2.name == "Main_Menu")
                 {
@@ -38,113 +38,113 @@ namespace HollowTwitch.Commands
         [HKCommand("cameffect")]
         [Summary("Applies various effects to the camera.\nEffects: Invert, Flip, Nausea, Backwards, Mirror, Pixelate, and Zoom.")]
         [Cooldown(35)]
-        public IEnumerator AddEffect(string effect)
+        public IEnumerator AddEffect(string effect, long duration = 30000)
         {
-            const float time = 30f;
+            float time = duration / 1000f;
 
             CameraEffects camEffect;
 
             try
             {
-                camEffect = (CameraEffects) Enum.Parse(typeof(CameraEffects), effect, true);
+                camEffect = (CameraEffects)Enum.Parse(typeof(CameraEffects), effect, true);
             }
             // Couldn't parse the effect, we'll go with a random one (at least for now).
             catch (ArgumentException)
             {
-                var values = (CameraEffects[]) Enum.GetValues(typeof(CameraEffects));
+                var values = (CameraEffects[])Enum.GetValues(typeof(CameraEffects));
 
                 camEffect = values[Random.Range(0, values.Length)];
             }
 
             tk2dCamera tk2dCam = GameCameras.instance.tk2dCam;
-            
+
             UCamera cam = Mirror.GetField<tk2dCamera, UCamera>(GameCameras.instance.tk2dCam, "_unityCamera");
 
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (camEffect)
             {
                 case CameraEffects.Zoom:
-                {
-                    tk2dCam.ZoomFactor = 5f;
-                    _activeEffects |= camEffect;
-
-                    yield return new WaitForSecondsRealtime(time);
-
-                    tk2dCam.ZoomFactor = 1f;
-                    _activeEffects &= ~camEffect;
-
-                    break;
-                }
-                case CameraEffects.Invert:
-                {
-                    ApplyShader ivc = cam.gameObject.GetComponent<ApplyShader>() ?? cam.gameObject.AddComponent<ApplyShader>();
-
-                    ivc.CurrentMaterial = _invertMat;
-                    ivc.enabled = true;
-
-                    yield return new WaitForSecondsRealtime(time);
-
-                    ivc.enabled = false;
-
-                    break;
-                }
-                case CameraEffects.Pixelate:
-                {
-                    Pixelate pix = cam.gameObject.GetComponent<Pixelate>() ?? cam.gameObject.AddComponent<Pixelate>();
-
-                    pix.mainCamera ??= cam;
-                    pix.enabled = true;
-
-                    yield return new WaitForSecondsRealtime(time);
-
-                    pix.enabled = false;
-
-                    break;
-                }
-                case CameraEffects.Backwards:
-                {
-                    float prev_z = cam.transform.position.z;
-                    float new_z = cam.transform.position.z + 80;
-
-                    /*
-                     * When you get hit, spell control tries to reset the camera.
-                     * This camera reset moves the camera super far back in z
-                     * and as a result you get an unusable black screen.
-                     *
-                     * This prevents that.
-                     */
-                    void PreventCameraReset(SetPosition.orig_DoSetPosition orig, HutongGames.PlayMaker.Actions.SetPosition self)
                     {
-                        if (self.Fsm.Name == "Spell Control" && self.Fsm.ActiveState.Name == "Reset Cam Zoom")
-                            return;
+                        tk2dCam.ZoomFactor = 5f;
+                        _activeEffects |= camEffect;
 
-                        orig(self);
+                        yield return new WaitForSecondsRealtime(time);
+
+                        tk2dCam.ZoomFactor = 1f;
+                        _activeEffects &= ~camEffect;
+
+                        break;
                     }
+                case CameraEffects.Invert:
+                    {
+                        ApplyShader ivc = cam.gameObject.GetComponent<ApplyShader>() ?? cam.gameObject.AddComponent<ApplyShader>();
 
-                    SetPosition.DoSetPosition += PreventCameraReset;
+                        ivc.CurrentMaterial = _invertMat;
+                        ivc.enabled = true;
 
-                    cam.transform.SetPositionZ(new_z);
+                        yield return new WaitForSecondsRealtime(time);
 
-                    Quaternion prev_rot = cam.transform.rotation;
+                        ivc.enabled = false;
 
-                    // Rotate around the y-axis to flip the vector.
-                    cam.transform.Rotate(Vector3.up, 180);
+                        break;
+                    }
+                case CameraEffects.Pixelate:
+                    {
+                        Pixelate pix = cam.gameObject.GetComponent<Pixelate>() ?? cam.gameObject.AddComponent<Pixelate>();
 
-                    _activeEffects |= CameraEffects.Mirror;
+                        pix.mainCamera ??= cam;
+                        pix.enabled = true;
 
-                    // Much shorter than the other effects due to it being a lot harder to play around
-                    yield return new WaitForSecondsRealtime(time);
+                        yield return new WaitForSecondsRealtime(time);
 
-                    SetPosition.DoSetPosition -= PreventCameraReset;
+                        pix.enabled = false;
 
-                    _activeEffects ^= CameraEffects.Mirror;
+                        break;
+                    }
+                case CameraEffects.Backwards:
+                    {
+                        float prev_z = cam.transform.position.z;
+                        float new_z = cam.transform.position.z + 80;
 
-                    // Reset the camera.
-                    cam.transform.rotation = prev_rot;
-                    cam.transform.SetPositionZ(prev_z);
+                        /*
+                         * When you get hit, spell control tries to reset the camera.
+                         * This camera reset moves the camera super far back in z
+                         * and as a result you get an unusable black screen.
+                         *
+                         * This prevents that.
+                         */
+                        void PreventCameraReset(SetPosition.orig_DoSetPosition orig, HutongGames.PlayMaker.Actions.SetPosition self)
+                        {
+                            if (self.Fsm.Name == "Spell Control" && self.Fsm.ActiveState.Name == "Reset Cam Zoom")
+                                return;
 
-                    break;
-                }
+                            orig(self);
+                        }
+
+                        SetPosition.DoSetPosition += PreventCameraReset;
+
+                        cam.transform.SetPositionZ(new_z);
+
+                        Quaternion prev_rot = cam.transform.rotation;
+
+                        // Rotate around the y-axis to flip the vector.
+                        cam.transform.Rotate(Vector3.up, 180);
+
+                        _activeEffects |= CameraEffects.Mirror;
+
+                        // Much shorter than the other effects due to it being a lot harder to play around
+                        yield return new WaitForSecondsRealtime(time);
+
+                        SetPosition.DoSetPosition -= PreventCameraReset;
+
+                        _activeEffects ^= CameraEffects.Mirror;
+
+                        // Reset the camera.
+                        cam.transform.rotation = prev_rot;
+                        cam.transform.SetPositionZ(prev_z);
+
+                        break;
+                    }
                 default:
                     _activeEffects |= camEffect;
                     yield return new WaitForSecondsRealtime(time);
@@ -190,7 +190,7 @@ namespace HollowTwitch.Commands
             {
                 // ReSharper disable once SuggestVarOrType_DeconstructionDeclarations
                 var (x, y, _) = HeroController.instance.gameObject.transform.position;
-                
+
                 GameManager.instance.cameraCtrl.SnapTo(x, y);
             }
 

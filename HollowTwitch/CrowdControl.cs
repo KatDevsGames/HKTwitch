@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using ConnectorLib.JSON;
 using CrowdControl;
 using HollowTwitch.Clients;
 using HollowTwitch.Commands;
@@ -46,7 +47,7 @@ namespace HollowTwitch
             ReceiveCommands();
         }
 
-        public override string GetVersion() => "1.0.0";
+        public override string GetVersion() => "1.2.0";
 
         public override List<(string, string)> GetPreloadNames() => ObjectLoader.ObjectList.Values.ToList();
 
@@ -72,6 +73,8 @@ namespace HollowTwitch
             _client = new CrowdControlClient(Config);
 
             _client.ChatMessageReceived += OnMessageReceived;
+            _client.GameStateRequested += OnGameStateRequested;
+            _client.MetadataRequested += OnMetadataRequested;
 
             _client.ClientErrored += s => Log($"An error occured while receiving messages.\nError: {s}");
 
@@ -85,6 +88,10 @@ namespace HollowTwitch
 
             Log("Started receiving");
         }
+
+        private IEnumerable<EffectResponseMetadata> OnMetadataRequested() => Processor.GetMetadata();
+
+        private GameUpdate OnGameStateRequested() => Processor.GetGameState();
 
         private void ConfigureCooldowns()
         {
@@ -124,18 +131,19 @@ namespace HollowTwitch
             _currentThread.Abort();
         }
 
-        private (SimpleTCPClient.EffectResult, Command) OnMessageReceived(string user, string message)
+        private (EffectStatus, Command) OnMessageReceived(string user, string message, long? duration)
         {
             Log($"Twitch chat: [{user}: {message}]");
 
             string trimmed = message.Trim();
             int index = trimmed.IndexOf(Config.Prefix);
 
-            if (index != 0) return (SimpleTCPClient.EffectResult.Failure, null);
+            if (index != 0) return (EffectStatus.Failure, null);
 
             string command = trimmed.Substring(Config.Prefix.Length).Trim();
 
-            return Processor.Execute(user, command, false);
+            Logger.Log($"OnMessageReceived is calling Processor.Execute with duration " + duration);
+            return Processor.Execute(user, command, duration, false);
         }
 
         private void GenerateHelpInfo()

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
+using ConnectorLib.JSON;
 using CrowdControl;
 using HollowTwitch.Entities;
-using Newtonsoft.Json;
 
 namespace HollowTwitch.Clients
 {
@@ -18,8 +14,10 @@ namespace HollowTwitch.Clients
     /// </summary>
     public class CrowdControlClient : IClient
     {
-        public event Func<string, string, (SimpleTCPClient.EffectResult, Command)> ChatMessageReceived;
+        public event Func<string, string, long?, (EffectStatus, Command)> ChatMessageReceived;
         public event Action<string> ClientErrored;
+        public event Func<GameUpdate> GameStateRequested;
+        public event Func<IEnumerable<EffectResponseMetadata>> MetadataRequested;
 
         private SimpleTCPClient _client;
 
@@ -42,14 +40,14 @@ namespace HollowTwitch.Clients
         private void Connect(string host, int port)
         {
             try { _client?.Dispose(); }
-            catch {/**/}
+            catch { /**/ }
             _client = new SimpleTCPClient();
             _client.OnRequestReceived += HandleRequest;
 
             Logger.Log("Connecting...");
         }
 
-        private void HandleRequest(SimpleTCPClient.Request request)
+        private void HandleRequest(SimpleJSONRequest request)
         {
             try
             {
@@ -58,19 +56,33 @@ namespace HollowTwitch.Clients
                     Logger.LogError("HandleRequest got a null request.");
                     return;
                 }
-                switch (request.type)
-                {
-                    case SimpleTCPClient.Request.RequestType.Start:
-                        (SimpleTCPClient.EffectResult result, Command command) result = ((SimpleTCPClient.EffectResult, Command))ChatMessageReceived?.Invoke(request.viewer, string.Join(" ", (request.parameters?.Select(p => p.ToString()) ?? Array.Empty<string>()).Prepend('!' + request.code.Replace('_', ' ')).ToArray()));
 
-                        SimpleTCPClient.Response response = new SimpleTCPClient.Response
+                switch (request)
+                {
+                    case EffectRequest req:
+                    {
+                        string command = string.Join(" ",
+                            (req.parameters?.Select(p => p.ToString()) ?? Array.Empty<string>())
+                            .Prepend('!' + req.code.Replace('_', ' ')).ToArray());
+
+                        (EffectStatus result, Command command) result = ((EffectStatus, Command))ChatMessageReceived?.Invoke(req.viewer, command, req.duration);
+
+                        EffectResponse response = new()
                         {
                             id = request.id,
                             status = result.result,
-                            timeRemaining = ((long?)result.command?.Cooldown?.TotalMilliseconds) ?? 0L
+                            timeRemaining = ((long?)result.command?.Cooldown?.TotalMilliseconds) ?? 0L,
+                            metadata = MetadataRequested?.Invoke().ToDictionary(m => m.key)
                         };
                         _client?.Respond(response);
                         return;
+                    }
+                    case not null when request.type == RequestType.GameUpdate:
+                    {
+                        GameUpdate result = GameStateRequested?.Invoke();
+                        _client?.Respond(result);
+                        return;
+                    }
                 }
             }
             catch (Exception e)

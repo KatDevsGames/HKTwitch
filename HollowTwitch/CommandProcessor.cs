@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using CrowdControl;
-using HollowTwitch.Clients;
+using ConnectorLib.JSON;
 using HollowTwitch.Entities;
 using HollowTwitch.Entities.Attributes;
 using HollowTwitch.Precondition;
@@ -50,7 +48,7 @@ namespace HollowTwitch
         }
 
         //this could probably go somewhere better
-        private static readonly HashSet<string> ExcludedAreas = new HashSet<string>(new[]
+        private static readonly HashSet<string> ExcludedAreas = new(new[]
         {
             "Quit_To_Menu",
             "Opening_Sequence",
@@ -66,9 +64,34 @@ namespace HollowTwitch
             "Room_mapper"
         });
 
-        public (SimpleTCPClient.EffectResult, Command) Execute(string user, string command, bool ignoreChecks = false)
+        public IEnumerable<EffectResponseMetadata> GetMetadata()
         {
-            if (ExcludedAreas.Contains(_currentScene)) return (SimpleTCPClient.EffectResult.Retry, null);
+            yield return EffectResponseMetadata.Success("health", HeroController.instance.playerData.health);
+            yield return EffectResponseMetadata.Success("mpCharge", HeroController.instance.playerData.MPCharge);
+            yield return EffectResponseMetadata.Success("mpReserve", HeroController.instance.playerData.MPReserve);
+            yield return EffectResponseMetadata.Success("location", _currentScene);
+        }
+
+        public GameUpdate GetGameState()
+        {
+            if (ExcludedAreas.Contains(_currentScene))
+                return new((_currentScene?.StartsWith("Room") ?? false) ? GameState.SafeArea : GameState.WrongMode);
+
+            if (HeroController.instance.cState.isPaused)
+                return new(GameState.Paused);
+
+            if (HeroController.instance.cState.dead)
+                return new(GameState.BadPlayerState);
+
+            if (HeroController.instance.cState.transitioning)
+                return new(GameState.Loading);
+
+            return new(GameState.Ready);
+        }
+
+        public (EffectStatus, Command) Execute(string user, string command, long? duration, bool ignoreChecks = false)
+        {
+            if (ExcludedAreas.Contains(_currentScene)) return (EffectStatus.Retry, null);
 
             string[] pieces = command.Split(Seperator);
 
@@ -82,17 +105,22 @@ namespace HollowTwitch
 
                 foreach (PreconditionAttribute p in c.Preconditions)
                 {
-                    if (p.Check(user)) continue;
-
-                    allGood = false;
-
-                    if (c.Preconditions.FirstOrDefault() is CooldownAttribute cooldown)
+                    if (p is CooldownAttribute cooldown)
                     {
+                        if (duration.HasValue) cooldown.Cooldown = TimeSpan.FromMilliseconds(duration.Value + 5);
+                        if (p.Check(user)) continue;
+                        allGood = false;
+
                         Logger.Log
                         (
                             $"The coodown for command {c.Name} failed. "
                             + $"The cooldown has {cooldown.MaxUses - cooldown.Uses} and will reset in {cooldown.ResetTime - DateTimeOffset.Now}"
                         );
+                    }
+                    else
+                    {
+                        if (p.Check(user)) continue;
+                        allGood = false;
                     }
                 }
 
@@ -102,6 +130,7 @@ namespace HollowTwitch
                     continue;
 
                 IEnumerable<string> args = pieces.Skip(1);
+                if (duration.HasValue) args = args.Append(duration.Value.ToString("D"));
 
                 if (!BuildArguments(args, c, out object[] parsed))
                     continue;
@@ -146,7 +175,7 @@ namespace HollowTwitch
                     }
 
                     _coroutineRunner.StartCoroutine(RunCommand());
-                    return (SimpleTCPClient.EffectResult.Success, c);
+                    return (EffectStatus.Success, c);
                 }
                 catch (Exception e)
                 {
@@ -154,7 +183,7 @@ namespace HollowTwitch
                 }
             }
 
-            return (SimpleTCPClient.EffectResult.Retry, null);
+            return (EffectStatus.Retry, null);
         }
 
         private bool BuildArguments(IEnumerable<string> args, Command command, out object[] parsed)

@@ -15,6 +15,9 @@
         <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
             <HintPath>..\..\hk-modding\Assembly-CSharp.dll</HintPath>
         </Reference>
+        <Reference Include="ConnectorLib.JSON">
+          <HintPath>ConnectorLib.JSON.dll</HintPath>
+        </Reference>
         <Reference Include="MMHOOK_Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
           <HintPath>..\..\hk-modding\MMHOOK_Assembly-CSharp.dll</HintPath>
         </Reference>
